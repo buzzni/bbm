@@ -1,3 +1,5 @@
+import inspect
+import os
 import socket
 import sys
 import time
@@ -6,15 +8,13 @@ from datetime import datetime
 from functools import wraps
 from uuid import uuid4
 
-import pytz
 import requests
 
 from bbm.exceptions import BBMNotInitialized
+from bbm.constants import KST, Interval
 
 # package info
 __version__ = "0.0.2"
-
-KST = pytz.timezone("Asia/Seoul")
 
 
 def get_ip():
@@ -47,15 +47,17 @@ class BBM:
             "process": process,
             "func": func,
             "level": level,
-            "param": param,
             "ip": self.ip,
+            "param": param,
             "host": self.hostname,
             "@timestamp": datetime_to_write_at_es,
         }
-        try:
-            return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
-        except Exception as e:
-            raise e
+        print(index)
+        print(write_dict)
+        # try:
+        #     return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
+        # except Exception as e:
+        #     raise e
 
 
 bbm: BBM
@@ -66,15 +68,23 @@ def setup(es_url: str, index_prefix: str = "batch-process-log"):
     bbm = BBM(es_url=es_url, index_prefix=index_prefix)
 
 
+def get_caller_file_name():
+    frame = inspect.stack()[2]
+    module = inspect.getmodule(frame[0])
+    filename = module.__file__
+    return os.path.basename(filename)
+
+
 def logging(
-    py_name,
-    interval=3600,
+    process_name="",
+    interval=Interval.A_HOUR,
 ):
     def wrapper(func):
         @wraps(func)
         def decorator(*args, **kwargs):
             if not bbm:
                 raise BBMNotInitialized("BBM is not initialized")
+            process = process_name or get_caller_file_name()
             func_name = func.__name__
             process_uuid = str(uuid4())
             result = None
@@ -92,7 +102,7 @@ def logging(
             }
             try:
                 bbm.post_log(
-                    process=py_name,
+                    process=process,
                     func=func_name,
                     param=start_log_param,
                 )
@@ -100,7 +110,7 @@ def logging(
                 duration = round(time.time() - start_time, 2)
                 complete_log_param["duration"] = duration
                 bbm.post_log(
-                    process=py_name,
+                    process=process,
                     func=func_name,
                     param=complete_log_param,
                 )
@@ -109,7 +119,7 @@ def logging(
                 error_traceback = "\n".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
                 duration = round(time.time() - start_time, 2)
                 bbm.post_log(
-                    process=py_name,
+                    process=process,
                     func=func_name,
                     level="error",
                     param={
