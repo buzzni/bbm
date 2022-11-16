@@ -1,0 +1,59 @@
+[project]
+name = "bbm"
+dynamic = ["version"]
+description = "📊 Buzzni Batch process Monitor."
+readme = "README.md"
+requires-python = ">=3.6.0"
+license = "MIT"
+authors = [
+    { name = "damonbuzzni", email = "damon@buzzni.com" },
+]
+classifiers = [
+    "Typing :: Typed",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "requests",
+]
+
+[project.urls]
+homepage = "https://github.com/buzzni/bbm"
+bug-tracker = "https://github.com/buzzni/bbm/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "requests-mock",
+    "black",
+    "isort"
+]
+dev = [
+    "pytest",
+    "twine",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "bbm/__init__.py"
+
+packages=["bbm"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+line_length = 120
+profile = "black"
