@@ -26,10 +26,11 @@ def get_hostname():
 
 
 class BBM:
-    def __init__(self, es_url: str, index_prefix: str = "batch-process-log"):
+    def __init__(self, es_url: str, process_category: str = "fission-tasks", index_prefix: str = "batch-process-log"):
         self.ip = get_ip()
         self.hostname = get_hostname()
         self.es_url = es_url
+        self.process_category = process_category
         self.index_prefix = index_prefix if index_prefix.endswith("-") else f"{index_prefix}-"
 
     def post_log(
@@ -52,20 +53,18 @@ class BBM:
             "host": self.hostname,
             "@timestamp": datetime_to_write_at_es,
         }
-        print(index)
-        print(write_dict)
-        # try:
-        #     return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
-        # except Exception as e:
-        #     raise e
+        try:
+            return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
+        except Exception as e:
+            raise e
 
 
 bbm: BBM
 
 
-def setup(es_url: str, index_prefix: str = "batch-process-log"):
+def setup(es_url: str, process_category: str = "", index_prefix: str = "batch-process-log"):
     global bbm
-    bbm = BBM(es_url=es_url, index_prefix=index_prefix)
+    bbm = BBM(es_url=es_url, process_category=process_category, index_prefix=index_prefix)
 
 
 def get_caller_file_name():
@@ -85,19 +84,20 @@ def logging(
             if not bbm:
                 raise BBMNotInitialized("BBM is not initialized")
             process = process_name or get_caller_file_name()
+            process_category = bbm.process_category
             func_name = func.__name__
             process_uuid = str(uuid4())
             result = None
             start_time = time.time()
             start_log_param = {
                 "msg": "start",
-                "cate": "fission-tasks",
+                "cate": process_category,
                 "interval": interval,
                 "process_uuid": process_uuid,
             }
             complete_log_param = {
                 "msg": "complete",
-                "cate": "fission-tasks",
+                "cate": process_category,
                 "process_uuid": process_uuid,
             }
             try:
@@ -124,7 +124,7 @@ def logging(
                     level="error",
                     param={
                         "msg": "fail",
-                        "cate": "fission-tasks",
+                        "cate": process_category,
                         "process_uuid": process_uuid,
                         "duration": duration,
                         "error_traceback": error_traceback,
