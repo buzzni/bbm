@@ -1,6 +1,5 @@
 import inspect
 import os
-import socket
 import sys
 import time
 import traceback
@@ -10,19 +9,12 @@ from uuid import uuid4
 
 import requests
 
-from bbm.exceptions import BBMNotInitialized
 from bbm.constants import KST, Interval
+from bbm.exceptions import BBMNotInitialized
+from bbm.utils import get_hostname, get_ip
 
 # package info
-__version__ = "0.0.2"
-
-
-def get_ip():
-    return requests.get("http://ipgrab.io").text
-
-
-def get_hostname():
-    return socket.gethostname()
+__version__ = "0.0.3"
 
 
 class BBM:
