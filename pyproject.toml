@@ -24,6 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "requests",
+    "pytz",
 ]
 
 [project.urls]
