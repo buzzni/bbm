@@ -1,10 +1,12 @@
+from datetime import datetime, timedelta
+
 import requests
+from prettytable import PrettyTable
+
+from bbm import bbm
+from bbm.constants import DEFAULT_ALLOW_INTERVAL_TIME, KST, STANDARD_DATETIME_ALLOW_BUFFER_RATIO, UTC
 from bbm.exceptions import NoJoinChannelException
 from bbm.utils import get_data_from_es
-from bbm.constants import KST, UTC, DEFAULT_ALLOW_INTERVAL_TIME, STANDARD_DATETIME_ALLOW_BUFFER_RATIO
-from bbm import bbm
-from datetime import datetime, timedelta
-from prettytable import PrettyTable
 
 
 class Reporter:
@@ -76,13 +78,13 @@ def send_report_to_slack():
 
         if data["param"]["msg"] == "start":
             if process_info_dict[data["process"]]["last_run_at"] == "" or (
-                    process_info_dict[data["process"]]["last_run_at"] < data["@timestamp"]
+                process_info_dict[data["process"]]["last_run_at"] < data["@timestamp"]
             ):
                 process_info_dict[data["process"]]["last_run_at"] = data["@timestamp"]
 
         if data["param"]["msg"] == "complete":
             if process_info_dict[data["process"]]["last_completed_at"] == "" or (
-                    process_info_dict[data["process"]]["last_completed_at"] < data["@timestamp"]
+                process_info_dict[data["process"]]["last_completed_at"] < data["@timestamp"]
             ):
                 process_info_dict[data["process"]]["last_completed_at"] = data["@timestamp"]
 
@@ -91,9 +93,9 @@ def send_report_to_slack():
 
         # timestamp 내림차순으로 가져와지기 때문에 첫번째 데이터가 가장 최근 데이터
         if (
-                data["param"].get("duration")
-                and process_info_dict[data["process"]]
-                and process_info_dict[data["process"]].get("duration") is None
+            data["param"].get("duration")
+            and process_info_dict[data["process"]]
+            and process_info_dict[data["process"]].get("duration") is None
         ):
             process_info_dict[data["process"]]["duration"] = data["param"]["duration"]
 
@@ -121,7 +123,7 @@ def send_report_to_slack():
             # es timestamp가 kst로 찍히기 때문에 kst로 비교
             process_info_dict[process]["standard_datetime"] = (datetime.now().astimezone(KST)) - timedelta(
                 seconds=process_info_dict[process]["interval"] * 2
-                        + (process_info_dict[process]["interval"] * 2) * STANDARD_DATETIME_ALLOW_BUFFER_RATIO
+                + (process_info_dict[process]["interval"] * 2) * STANDARD_DATETIME_ALLOW_BUFFER_RATIO
             )
             process_info_dict[process]["run_count"] = 0
 
@@ -130,8 +132,8 @@ def send_report_to_slack():
         if data["param"]["msg"] == "complete" and process_info_dict[data["process"]].get("standard_datetime", False):
             log_datetime = datetime.strptime(data["@timestamp"], elasticsearch_timestamp_format)
             if (
-                    process_info_dict[data["process"]]["standard_datetime"] <= log_datetime
-                    and data["param"]["msg"] == "complete"
+                process_info_dict[data["process"]]["standard_datetime"] <= log_datetime
+                and data["param"]["msg"] == "complete"
             ):
                 process_info_dict[data["process"]]["run_count"] += 1
 
@@ -192,7 +194,7 @@ def send_report_to_slack():
             passed = (
                 True
                 if (process_info_dict[process].get("run_count", 0) > 1)
-                   or (process_info_dict[process].get("last_run_at") > default_standard_datetime)
+                or (process_info_dict[process].get("last_run_at") > default_standard_datetime)
                 else False
             )
             # 2. next_estimated가 있음에도 불구하고 실행횟수가 0번인 경우
@@ -205,9 +207,9 @@ def send_report_to_slack():
             passed = (
                 False
                 if process_info_dict[process].get("last_completed_at", None)
-                   and (
-                           process_info_dict[process].get("last_completed_at") < process_info_dict[process].get("last_run_at")
-                   )
+                and (
+                    process_info_dict[process].get("last_completed_at") < process_info_dict[process].get("last_run_at")
+                )
                 else passed
             )
 
@@ -216,14 +218,14 @@ def send_report_to_slack():
             passed = (
                 True
                 if (next_run > datetime.now().strftime("%Y-%m-%d %H:%M"))
-                   and (process_info_dict[process].get("run_count", 0) > 1)
+                and (process_info_dict[process].get("run_count", 0) > 1)
                 else passed
             )
             # 2. last_run_at이 3분 이내면 passed
             passed = (
                 True
                 if process_info_dict[process].get("last_run_at")
-                   and (datetime.now().astimezone(UTC) - process_info_dict[process].get("last_run_at")).seconds < 180
+                and (datetime.now().astimezone(UTC) - process_info_dict[process].get("last_run_at")).seconds < 180
                 else passed
             )
 

@@ -6,7 +6,6 @@ KST = pytz.timezone("Asia/Seoul")
 UTC = pytz.timezone("UTC")
 
 
-
 ES_LIMIT_SIZE = 10000
 STANDARD_DATETIME_ALLOW_BUFFER_RATIO = 0.2
 

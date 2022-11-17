@@ -1,9 +1,10 @@
 import socket
 from datetime import datetime, timedelta
 from time import mktime
-from bbm.constants import ES_LIMIT_SIZE
 
 import requests
+
+from bbm.constants import ES_LIMIT_SIZE
 
 
 def get_ip():

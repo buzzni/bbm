@@ -18,7 +18,13 @@ __version__ = "0.0.4"
 
 
 class BBM:
-    def __init__(self, es_url: str, process_category: str = "fission-tasks", index_prefix: str = "batch-process-log", ignore_process_list = None):
+    def __init__(
+        self,
+        es_url: str,
+        process_category: str = "fission-tasks",
+        index_prefix: str = "batch-process-log",
+        ignore_process_list=None,
+    ):
         self.ip = get_ip()
         self.hostname = get_hostname()
         self.es_url = es_url
