@@ -3,8 +3,12 @@ from enum import Enum
 import pytz
 
 KST = pytz.timezone("Asia/Seoul")
+UTC = pytz.timezone("UTC")
+
+
 
 ES_LIMIT_SIZE = 10000
+STANDARD_DATETIME_ALLOW_BUFFER_RATIO = 0.2
 
 
 class Interval(int, Enum):
@@ -20,3 +24,6 @@ class Interval(int, Enum):
     SIX_HOURS = A_HOUR * 6
 
     A_DAY = A_HOUR * 24
+
+
+DEFAULT_ALLOW_INTERVAL_TIME = Interval.TWO_AND_HALF_HOURS
