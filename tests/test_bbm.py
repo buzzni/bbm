@@ -1,5 +1,6 @@
 from bbm import logging, setup
-from .conftest import TEST_ES_URL, TEST_ES_INDEX
+
+from .conftest import TEST_ES_INDEX, TEST_ES_URL
 
 
 def test_one_plus_one():
@@ -13,6 +14,7 @@ def test_setup_and_logging_decorator(requests_mock):
     @logging()
     def temp_func():
         return "Hello World"
+
     temp_func()
     # logging decorator calls two times because of start and complete
     # so, total call count is 3
