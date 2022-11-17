@@ -144,3 +144,4 @@ dmypy.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
+full_process_report.txt

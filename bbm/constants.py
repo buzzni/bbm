@@ -4,6 +4,8 @@ import pytz
 
 KST = pytz.timezone("Asia/Seoul")
 
+ES_LIMIT_SIZE = 10000
+
 
 class Interval(int, Enum):
     A_MINUTE = 60
