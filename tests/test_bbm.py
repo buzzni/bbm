@@ -6,7 +6,7 @@ def test_one_plus_one():
     assert 1 + 1 == 2
 
 
-def test_setup(requests_mock):
+def test_setup_and_logging_decorator(requests_mock):
     setup(es_url=TEST_ES_URL, index_prefix=TEST_ES_INDEX)
     assert requests_mock.call_count == 1
 

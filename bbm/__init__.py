@@ -14,7 +14,7 @@ from bbm.exceptions import BBMNotInitialized
 from bbm.utils import get_hostname, get_ip
 
 # package info
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 
 class BBM:
