@@ -14,16 +14,17 @@ from bbm.exceptions import BBMNotInitialized
 from bbm.utils import get_hostname, get_ip
 
 # package info
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 
 class BBM:
-    def __init__(self, es_url: str, process_category: str = "fission-tasks", index_prefix: str = "batch-process-log"):
+    def __init__(self, es_url: str, process_category: str = "fission-tasks", index_prefix: str = "batch-process-log", ignore_process_list = None):
         self.ip = get_ip()
         self.hostname = get_hostname()
         self.es_url = es_url
         self.process_category = process_category
         self.index_prefix = index_prefix if index_prefix.endswith("-") else f"{index_prefix}-"
+        self.ignore_process_list = ignore_process_list if ignore_process_list else []
 
     def post_log(
         self,

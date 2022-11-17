@@ -20,11 +20,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install bbm
-      run: |
-        pip install bbm
-
     - name: Run pytest
       run: |
-        pip install pytest requests-mock
+        pip install -e."[test]"
         pytest
