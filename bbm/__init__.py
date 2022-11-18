@@ -6,11 +6,9 @@ import traceback
 from functools import wraps
 from uuid import uuid4
 
-
 from bbm.constants import KST, Interval
 from bbm.exceptions import BBMNotInitialized, ReporterNotInitialized
 from bbm.implements import BBM, Reporter
-
 
 # package info
 __version__ = "0.0.4"

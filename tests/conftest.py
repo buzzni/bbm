@@ -35,4 +35,3 @@ def set_up(requests_mock):
         "https://slack.com/api/chat.postMessage",
         json={"ok": True, "channel": TEST_SLACK_CHANNEL_ID, "ts": "1234567890.123456"},
     )
-

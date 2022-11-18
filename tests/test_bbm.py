@@ -1,6 +1,5 @@
-from bbm import logging, setup_logging, setup_reporter, get_reporter, get_bbm
-
-from tests.conftest import TEST_ES_INDEX, TEST_ES_URL, TEST_SLACK_TOKEN, TEST_SLACK_CHANNEL_ID
+from bbm import get_bbm, get_reporter, logging, setup_logging, setup_reporter
+from tests.conftest import TEST_ES_INDEX, TEST_ES_URL, TEST_SLACK_CHANNEL_ID, TEST_SLACK_TOKEN
 
 
 def test_one_plus_one():

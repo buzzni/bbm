@@ -1,17 +1,19 @@
+from datetime import datetime
+
+import requests
+
+from bbm.constants import KST
 from bbm.exceptions import NoJoinChannelException
 from bbm.utils import get_hostname, get_ip
-from datetime import datetime
-from bbm.constants import KST
-import requests
 
 
 class BBM:
     def __init__(
-            self,
-            es_url: str,
-            process_category: str = "fission-tasks",
-            index_prefix: str = "batch-process-log",
-            ignore_process_list=None,
+        self,
+        es_url: str,
+        process_category: str = "fission-tasks",
+        index_prefix: str = "batch-process-log",
+        ignore_process_list=None,
     ):
         self.ip = get_ip()
         self.hostname = get_hostname()
@@ -21,11 +23,11 @@ class BBM:
         self.ignore_process_list = ignore_process_list if ignore_process_list else []
 
     def post_log(
-            self,
-            process: str,
-            func: str,
-            param: dict,
-            level: str = "info",
+        self,
+        process: str,
+        func: str,
+        param: dict,
+        level: str = "info",
     ):
         now_kst = datetime.now(tz=KST)
         get_date_to_index = now_kst.strftime("%Y.%m.%d")
