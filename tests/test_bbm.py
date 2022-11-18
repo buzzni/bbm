@@ -1,4 +1,4 @@
-from bbm import logging, setup, get_bbm
+from bbm import get_bbm, logging, setup
 from bbm.reporter import Reporter
 from tests.conftest import TEST_ES_INDEX, TEST_ES_URL, TEST_SLACK_CHANNEL_ID, TEST_SLACK_TOKEN
 
