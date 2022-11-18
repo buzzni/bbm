@@ -1,8 +1,9 @@
+from datetime import datetime
+
 import requests
 
 from bbm.exceptions import NoJoinChannelException
 from bbm.utils import create_report, get_file_content
-from datetime import datetime
 
 
 class Reporter:
@@ -90,4 +91,3 @@ class Reporter:
             f.write(full_report)
         upload_response = self.post_message_with_file("full_process_report.txt", "full_process_report.txt", ts=ts)
         return upload_response
-

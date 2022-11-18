@@ -306,6 +306,6 @@ def create_report():
 
 
 def get_file_content(file_path: str):
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         content = f.read()
     return content
