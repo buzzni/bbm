@@ -55,4 +55,8 @@ if __name__ == "__main__":
     reporter.post_report()
 ```
 
-### report sample
+### Report sample
+1. Need to check report
+![report_sample](https://raw.githubusercontent.com/buzzni/bbm/main/doc/images/example1.png)
+2. Full report (It will be sent as a file at 'need to check report' thread)
+![report_sample](https://raw.githubusercontent.com/buzzni/bbm/main/doc/images/example2.png)
