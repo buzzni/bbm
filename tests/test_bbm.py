@@ -1,4 +1,4 @@
-from bbm import logging, setup
+from bbm import logging, setup, get_bbm
 from bbm.reporter import Reporter
 from tests.conftest import TEST_ES_INDEX, TEST_ES_URL, TEST_SLACK_CHANNEL_ID, TEST_SLACK_TOKEN
 
@@ -26,3 +26,25 @@ def test_setup_reporter(requests_mock):
     assert requests_mock.call_count == 1
     reporter.post_message("test message")
     assert requests_mock.call_count == 2
+
+
+def test_post_message_by_user_reporter_before_init_bbm(requests_mock):
+    reporter = Reporter(slack_token=TEST_SLACK_TOKEN, slack_channel_id=TEST_SLACK_CHANNEL_ID)
+    assert requests_mock.call_count == 1
+    reporter.post_message("test message")
+    assert requests_mock.call_count == 2
+    latest_request_mock_call_count = requests_mock.call_count
+    try:
+        need_to_check, full_report = reporter.post_report()
+    except Exception as e:
+        assert isinstance(e, Exception)
+
+    setup(es_url=TEST_ES_URL, index_prefix=TEST_ES_INDEX)
+    bbm = get_bbm()
+    assert bbm.es_url == TEST_ES_URL
+    assert bbm.index_prefix == TEST_ES_INDEX + "-"
+
+    need_to_check, full_report = reporter.post_report()
+    assert requests_mock.call_count > latest_request_mock_call_count
+    assert need_to_check is not None
+    assert full_report is not None

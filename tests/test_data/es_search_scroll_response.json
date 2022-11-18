@@ -1,0 +1,32 @@
+{
+  "_scroll_id": "HOHOHO",
+  "took": 1,
+  "hits": {
+    "total": 1,
+    "max_score": 1.0,
+    "hits": [
+      {
+        "_index": "test-index",
+        "_type": "_doc",
+        "_id": "1",
+        "_score": 1.0,
+        "_source": {
+          "process": "test_process.py",
+          "func": "main",
+          "level": "info",
+          "param": {
+            "msg": "complete",
+            "cate": "fission-tasks",
+            "process_uuid": "ca92dbac-2a9f-4070-bade-59f99d18463b",
+            "duration": 2.98
+          },
+          "author": "",
+          "ip": "0.0.0.0",
+          "host": "host",
+          "@timestamp": "2022-11-18T14:28:06.862734+09:00",
+          "msg": ""
+        }
+      }
+    ]
+  }
+}

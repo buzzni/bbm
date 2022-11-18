@@ -70,26 +70,31 @@ def get_data_from_es(
     param["request_timeout"] = 1200
     param["scroll"] = "2m"
 
-    results = requests.post(
+    es_response = requests.post(
         f"{es_url}/{es_index}/_search?scroll=2m",
         json=query_dsl,
     ).json()
     data_list = []
-    while len(results["hits"]["hits"]) > 0:
-        data_list += results["hits"]["hits"]
+    while len(es_response["hits"]["hits"]) > 0:
+        data_list += es_response["hits"]["hits"]
         if len(data_list) >= num:
             break
-        scroll_id = results["_scroll_id"]
-        results = requests.post(
-            f"{es_url}/{es_index}/_search/scroll",
+        scroll_id = es_response["_scroll_id"]
+        es_response = requests.post(
+            f"{es_url}/_search/scroll",
             json={"scroll": "2m", "scroll_id": scroll_id},
         ).json()
-    return data_list
+
+    result = []
+    for data in data_list:
+        result.append(data["_source"])
+    return result
 
 
 def create_report():
+    bbm_obj = bbm.get_bbm()
     dql = "param.msg:start OR param.msg:complete"
-    query_result = get_data_from_es(query=dql, num=10, es_index=bbm.bbm.index_prefix + "*", es_url=bbm.bbm.es_url)
+    query_result = get_data_from_es(query=dql, num=20000, es_index=bbm_obj.index_prefix + "*", es_url=bbm_obj.es_url)
     process_distinct = set()
     process_info_dict = dict()
     default_standard_datetime = datetime.now().astimezone(UTC) - timedelta(seconds=int(DEFAULT_ALLOW_INTERVAL_TIME))
@@ -195,7 +200,7 @@ def create_report():
     process_list = sorted(list(process_info_dict))
 
     for process in process_list:
-        if process in bbm.bbm.ignore_process_list:
+        if process in bbm_obj.ignore_process_list:
             continue
         row = [""] * len(total_process_table.field_names)
         row[0] = process
@@ -279,7 +284,7 @@ def create_report():
             need_to_check_count += 1
         total_process_table.add_row(row)
 
-    ignored_process_count = len([process for process in process_list if process in bbm.bbm.ignore_process_list])
+    ignored_process_count = len([process for process in process_list if process in bbm_obj.ignore_process_list])
     total_process_msg = str(total_process_table)
     total_process_msg += f"\ntotal: {len(process_list)}"
     total_process_msg += f"\nignored: {ignored_process_count}"

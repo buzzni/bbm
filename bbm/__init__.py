@@ -56,7 +56,14 @@ class BBM:
             raise e
 
 
-bbm: BBM
+bbm: BBM = None
+
+
+def get_bbm():
+    global bbm
+    if not bbm:
+        raise BBMNotInitialized("BBM is not initialized")
+    return bbm
 
 
 def setup(es_url: str, process_category: str = "", index_prefix: str = "batch-process-log"):

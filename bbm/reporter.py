@@ -1,6 +1,7 @@
 import requests
 
 from bbm.exceptions import NoJoinChannelException
+from bbm.utils import create_report
 
 
 class Reporter:
@@ -24,14 +25,17 @@ class Reporter:
         for channel in response.json()["channels"]:
             if channel["is_member"]:
                 found_joined_channels.append(channel)
-        next_cursor = response.json()["response_metadata"]["next_cursor"]
-        while next_cursor:
-            response = requests.get(url=url, headers=headers, params={"cursor": next_cursor})
-            for channel in response.json()["channels"]:
-                if channel["is_member"]:
-                    found_joined_channels.append(channel)
+        if response.json().get("response_metadata") and response.json()["response_metadata"]["next_cursor"]:
             next_cursor = response.json()["response_metadata"]["next_cursor"]
-        return found_joined_channels
+            while next_cursor:
+                response = requests.get(url=url, headers=headers, params={"cursor": next_cursor})
+                for channel in response.json()["channels"]:
+                    if channel["is_member"]:
+                        found_joined_channels.append(channel)
+                next_cursor = response.json()["response_metadata"]["next_cursor"]
+            return found_joined_channels
+        else:
+            return found_joined_channels
 
     def is_token_joined_at_channel(self, slack_channel_id: str):
         channel_list = self.get_channel_list()
@@ -51,3 +55,6 @@ class Reporter:
         }
         response = requests.post(url=self.url, headers=headers, json=payload)
         return response.json()
+
+    def post_report(self):
+        return create_report()
