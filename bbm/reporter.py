@@ -20,11 +20,22 @@ class Reporter:
             "Content-Type": "application/json",
         }
         response = requests.get(url=url, headers=headers)
-        return response.json()
+        found_joined_channels = []
+        for channel in response.json()["channels"]:
+            if channel["is_member"]:
+                found_joined_channels.append(channel)
+        next_cursor = response.json()["response_metadata"]["next_cursor"]
+        while next_cursor:
+            response = requests.get(url=url, headers=headers, params={"cursor": next_cursor})
+            for channel in response.json()["channels"]:
+                if channel["is_member"]:
+                    found_joined_channels.append(channel)
+            next_cursor = response.json()["response_metadata"]["next_cursor"]
+        return found_joined_channels
 
     def is_token_joined_at_channel(self, slack_channel_id: str):
         channel_list = self.get_channel_list()
-        for channel in channel_list["channels"]:
+        for channel in channel_list:
             if channel["id"] == slack_channel_id and channel["is_member"]:
                 return True
         return False
