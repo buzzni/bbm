@@ -8,3 +8,7 @@ class NoChannelException(Exception):
 
 class NoJoinChannelException(Exception):
     pass
+
+
+class ReporterNotInitialized(Exception):
+    pass
