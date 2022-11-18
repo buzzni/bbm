@@ -12,7 +12,7 @@ from bbm.exceptions import BBMNotInitialized, NoJoinChannelException, ReporterNo
 from bbm.utils import create_report, get_caller_file_name, get_hostname, get_ip
 
 # package info
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 
 class BBM:
@@ -66,9 +66,14 @@ def get_bbm():
     return bbm
 
 
-def setup(es_url: str, process_category: str = "", index_prefix: str = "batch-process-log"):
+def setup(es_url: str, process_category: str = "", index_prefix: str = "batch-process-log", ignore_process_list=None):
     global bbm
-    bbm = BBM(es_url=es_url, process_category=process_category, index_prefix=index_prefix)
+    bbm = BBM(
+        es_url=es_url,
+        process_category=process_category,
+        index_prefix=index_prefix,
+        ignore_process_list=ignore_process_list,
+    )
 
 
 def logging(
