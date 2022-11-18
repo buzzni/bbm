@@ -24,14 +24,14 @@ def test_setup_and_logging_decorator(requests_mock):
 def test_setup_reporter(requests_mock):
     reporter = Reporter(slack_token=TEST_SLACK_TOKEN, slack_channel_id=TEST_SLACK_CHANNEL_ID)
     assert requests_mock.call_count == 1
-    reporter.post_message("test message")
+    reporter.post_message(title="title", text="text")
     assert requests_mock.call_count == 2
 
 
 def test_post_message_by_user_reporter_before_init_bbm(requests_mock):
     reporter = Reporter(slack_token=TEST_SLACK_TOKEN, slack_channel_id=TEST_SLACK_CHANNEL_ID)
     assert requests_mock.call_count == 1
-    reporter.post_message("test message")
+    reporter.post_message(title="title", text="text")
     assert requests_mock.call_count == 2
     latest_request_mock_call_count = requests_mock.call_count
     try:

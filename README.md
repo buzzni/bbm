@@ -17,6 +17,7 @@ pip install bbm
 ```
 
 ## Example
+### logging
 ```python
 from bbm import Interval, logging, setup
 
@@ -35,4 +36,21 @@ if __name__ == "__main__":
     setup(es_url="your-es-url", index_prefix="your-index-prefix")
     temp_func()
     temp_func2()
+```
+### post report
+```python
+from bbm import reporter, setup
+
+if __name__ == "__main__":
+    # init bbm
+    setup(es_url="your-es-url", index_prefix="your-index-prefix")
+    
+    # init reporter and send simple messages
+    reporter = reporter.Reporter(slack_token="your-slack-token", slack_channel_id="your-slack-channel-id")
+    post_response = reporter.post_message(title="title", text="text")
+    ts = post_response["ts"]
+    post_message_to_thread = reporter.post_message(title="title", text="text", ts=ts)
+    
+    # send report    
+    reporter.post_report()
 ```

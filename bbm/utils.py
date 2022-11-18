@@ -303,3 +303,9 @@ def create_report():
         need_to_check_process_msg += f"\n✨ Everything is Ok ✨"
 
     return need_to_check_process_msg, total_process_msg
+
+
+def get_file_content(file_path: str):
+    with open(file_path, 'rb') as f:
+        content = f.read()
+    return content
