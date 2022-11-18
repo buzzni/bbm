@@ -1,6 +1,6 @@
-import socket
 import inspect
 import os
+import socket
 from datetime import datetime, timedelta
 from time import mktime
 
@@ -9,7 +9,6 @@ from prettytable import PrettyTable
 
 import bbm
 from bbm.constants import DEFAULT_ALLOW_INTERVAL_TIME, ES_LIMIT_SIZE, KST, STANDARD_DATETIME_ALLOW_BUFFER_RATIO, UTC
-
 
 
 def get_caller_file_name():
