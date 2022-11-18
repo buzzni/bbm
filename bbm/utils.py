@@ -1,4 +1,6 @@
 import socket
+import inspect
+import os
 from datetime import datetime, timedelta
 from time import mktime
 
@@ -7,6 +9,14 @@ from prettytable import PrettyTable
 
 import bbm
 from bbm.constants import DEFAULT_ALLOW_INTERVAL_TIME, ES_LIMIT_SIZE, KST, STANDARD_DATETIME_ALLOW_BUFFER_RATIO, UTC
+
+
+
+def get_caller_file_name():
+    frame = inspect.stack()[2]
+    module = inspect.getmodule(frame[0])
+    filename = module.__file__
+    return os.path.basename(filename)
 
 
 def get_ip():
@@ -78,7 +88,7 @@ def get_data_from_es(
     return data_list
 
 
-def send_report_to_slack():
+def create_report():
     dql = "param.msg:start OR param.msg:complete"
     query_result = get_data_from_es(query=dql, num=10, es_index=bbm.bbm.index_prefix + "*", es_url=bbm.bbm.es_url)
     process_distinct = set()
@@ -245,7 +255,7 @@ def send_report_to_slack():
             passed = (
                 True
                 if (next_run > datetime.now().strftime("%Y-%m-%d %H:%M"))
-                and (process_info_dict[process].get("run_count", 0) > 1)
+                and (process_info_dict[process].get("run_count", 0) > 0)
                 else passed
             )
             # 2. last_run_at이 3분 이내면 passed
@@ -255,9 +265,9 @@ def send_report_to_slack():
                 and (datetime.now().astimezone(UTC) - process_info_dict[process].get("last_run_at")).seconds < 180
                 else passed
             )
-
         except Exception as e:
             passed = False
+
         row[4] = "" if passed else "✔️"
         row[5] = (
             round(process_info_dict[process].get("duration", 0), 2)
@@ -288,5 +298,4 @@ def send_report_to_slack():
         need_to_check_process_msg += f"\nneed_to_check: {need_to_check_count}"
         need_to_check_process_msg += f"\n✨ Everything is Ok ✨"
 
-    print(need_to_check_process_msg)
-    print(total_process_msg)
+    return need_to_check_process_msg, total_process_msg

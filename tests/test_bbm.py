@@ -1,4 +1,5 @@
-from bbm import get_bbm, get_reporter, logging, setup_logging, setup_reporter
+from bbm import logging, setup
+from bbm.reporter import Reporter
 from tests.conftest import TEST_ES_INDEX, TEST_ES_URL, TEST_SLACK_CHANNEL_ID, TEST_SLACK_TOKEN
 
 
@@ -7,7 +8,7 @@ def test_one_plus_one():
 
 
 def test_setup_and_logging_decorator(requests_mock):
-    setup_logging(es_url=TEST_ES_URL, index_prefix=TEST_ES_INDEX)
+    setup(es_url=TEST_ES_URL, index_prefix=TEST_ES_INDEX)
     assert requests_mock.call_count == 1
 
     @logging()
@@ -21,22 +22,7 @@ def test_setup_and_logging_decorator(requests_mock):
 
 
 def test_setup_reporter(requests_mock):
-    setup_reporter(slack_token=TEST_SLACK_TOKEN, slack_channel_id=TEST_SLACK_CHANNEL_ID)
+    reporter = Reporter(slack_token=TEST_SLACK_TOKEN, slack_channel_id=TEST_SLACK_CHANNEL_ID)
     assert requests_mock.call_count == 1
-    reporter = get_reporter()
     reporter.post_message("test message")
     assert requests_mock.call_count == 2
-
-
-def test_get_bbm_before_init():
-    try:
-        get_bbm()
-    except Exception as e:
-        assert str(e) == "BBM is not initialized"
-
-
-def test_get_reporter_before_init():
-    try:
-        get_reporter()
-    except Exception as e:
-        assert str(e) == "Reporter is not initialized"
