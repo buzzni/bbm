@@ -94,6 +94,8 @@ def get_data_from_es(
 def create_report():
     bbm_obj = bbm.get_bbm()
     dql = "param.msg:start OR param.msg:complete"
+    if bbm_obj.process_category:
+        dql = f"({dql}) AND param.cate:{bbm_obj.process_category}"
     query_result = get_data_from_es(query=dql, num=20000, es_index=bbm_obj.index_prefix + "*", es_url=bbm_obj.es_url)
     process_distinct = set()
     process_info_dict = dict()
