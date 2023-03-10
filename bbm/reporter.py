@@ -14,8 +14,6 @@ class Reporter:
     def __init__(self, slack_token: str, slack_channel_id: str):
         self.slack_token = slack_token
         self.slack_channel_id = slack_channel_id
-        if not self.is_token_joined_at_channel(slack_channel_id):
-            raise NoJoinChannelException("Token is not joined at channel")
 
     def get_channel_list(self):
         headers = {
