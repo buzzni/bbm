@@ -31,6 +31,7 @@ class BBMKafka:
 
     def produce_log(self, process: str, func: str, param: dict, level: str = "info"):
         data = {
+            "index_prefix": self.index_prefix,
             "process": process,
             "func": func,
             "level": level,
