@@ -12,7 +12,7 @@ from bbm.exceptions import BBMNotInitialized, NoJoinChannelException, ReporterNo
 from bbm.utils import create_report, get_caller_file_name, get_hostname, get_ip
 
 # package info
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 
 class BBM:
