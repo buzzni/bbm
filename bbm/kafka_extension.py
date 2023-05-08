@@ -40,8 +40,7 @@ class BBMKafka:
             "@timestamp": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
         }
         try:
-            result = self.producer.produce(self.kafka_topic, json.dumps(data).encode("utf-8"))
-            print(result)
+            self.producer.produce(self.kafka_topic, json.dumps(data).encode("utf-8"))
         except Exception as e:
             raise e
         finally:
