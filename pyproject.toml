@@ -32,6 +32,9 @@ homepage = "https://github.com/buzzni/bbm"
 bug-tracker = "https://github.com/buzzni/bbm/issues"
 
 [project.optional-dependencies]
+kafka = [
+    "confluent-kafka>=1.6.0",
+]
 test = [
     "pytest",
     "requests-mock",

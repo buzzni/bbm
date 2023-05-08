@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 import traceback
@@ -5,74 +6,62 @@ from datetime import datetime
 from functools import wraps
 from uuid import uuid4
 
-import requests
+from confluent_kafka import Producer
 
-from bbm.constants import KST, Interval
-from bbm.exceptions import BBMNotInitialized, NoJoinChannelException, ReporterNotInitialized
-from bbm.utils import create_report, get_caller_file_name, get_hostname, get_ip
-
-# package info
-__version__ = "0.0.7"
+from bbm import Interval
+from bbm.exceptions import BBMKafkaNotInitialized
+from bbm.utils import get_caller_file_name, get_hostname, get_ip
 
 
-class BBM:
+class BBMKafka:
     def __init__(
         self,
-        es_url: str,
+        kafka_bootstrap_servers: str,
+        kafka_topic: str,
         process_category: str = "batch-process",
         index_prefix: str = "batch-process-log",
-        ignore_process_list=None,
     ):
         self.ip = get_ip()
         self.hostname = get_hostname()
-        self.es_url = es_url
+        self.kafka_bootstrap_servers = kafka_bootstrap_servers
         self.process_category = process_category
-        self.index_prefix = index_prefix if index_prefix.endswith("-") else f"{index_prefix}-"
-        self.ignore_process_list = ignore_process_list if ignore_process_list else []
+        self.kafka_topic = kafka_topic
+        self.index_prefix = index_prefix
+        self.producer = Producer({"bootstrap.servers": kafka_bootstrap_servers})
 
-    def post_log(
-        self,
-        process: str,
-        func: str,
-        param: dict,
-        level: str = "info",
-    ):
-        now_kst = datetime.now(tz=KST)
-        get_date_to_index = now_kst.strftime("%Y.%m.%d")
-        index = f"{self.index_prefix}{get_date_to_index}"
-        datetime_to_write_at_es = now_kst.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-        write_dict = {
+    def produce_log(self, process: str, func: str, param: dict, level: str = "info"):
+        data = {
             "process": process,
             "func": func,
             "level": level,
             "ip": self.ip,
             "param": param,
             "host": self.hostname,
-            "@timestamp": datetime_to_write_at_es,
+            "@timestamp": datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
         }
         try:
-            return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
+            result = self.producer.produce(self.kafka_topic, json.dumps(data).encode("utf-8"))
+            print(result)
         except Exception as e:
             raise e
+        finally:
+            self.producer.flush()
 
 
-bbm: BBM = None
+bbm_kafka: BBMKafka = None
 
 
-def get_bbm():
-    global bbm
-    if not bbm:
-        raise BBMNotInitialized("BBM is not initialized")
-    return bbm
+def get_bbm_kafka():
+    global bbm_kafka
+    if not bbm_kafka:
+        raise BBMKafkaNotInitialized("BBM is not initialized")
+    return bbm_kafka
 
 
-def setup(es_url: str, process_category: str = "", index_prefix: str = "batch-process-log", ignore_process_list=None):
-    global bbm
-    bbm = BBM(
-        es_url=es_url,
-        process_category=process_category,
-        index_prefix=index_prefix,
-        ignore_process_list=ignore_process_list,
+def setup(kafka_bootstrap_servers: str, kafka_topic: str, index_prefix: str):
+    global bbm_kafka
+    bbm_kafka = BBMKafka(
+        kafka_bootstrap_servers=kafka_bootstrap_servers, kafka_topic=kafka_topic, index_prefix=index_prefix
     )
 
 
@@ -83,10 +72,10 @@ def logging(
     def wrapper(func):
         @wraps(func)
         def decorator(*args, **kwargs):
-            if not bbm:
-                raise BBMNotInitialized("BBM is not initialized")
+            if not bbm_kafka:
+                raise BBMKafkaNotInitialized("BBM Kafka Extension is not initialized")
             process = process_name or get_caller_file_name()
-            process_category = bbm.process_category
+            process_category = bbm_kafka.process_category
             func_name = func.__name__
             process_uuid = str(uuid4())
             result = None
@@ -103,7 +92,7 @@ def logging(
                 "process_uuid": process_uuid,
             }
             try:
-                bbm.post_log(
+                bbm_kafka.produce_log(
                     process=process,
                     func=func_name,
                     param=start_log_param,
@@ -111,7 +100,7 @@ def logging(
                 result = func(*args, **kwargs)
                 duration = round(time.time() - start_time, 2)
                 complete_log_param["duration"] = duration
-                bbm.post_log(
+                bbm_kafka.produce_log(
                     process=process,
                     func=func_name,
                     param=complete_log_param,
@@ -120,7 +109,7 @@ def logging(
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 error_traceback = "\n".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
                 duration = round(time.time() - start_time, 2)
-                bbm.post_log(
+                bbm_kafka.produce_log(
                     process=process,
                     func=func_name,
                     level="error",
