@@ -145,3 +145,4 @@ dmypy.json
 !.vscode/extensions.json
 
 full_process_report.txt
+.history

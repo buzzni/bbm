@@ -1,3 +1,4 @@
+import logging
 import sys
 import time
 import traceback
@@ -8,11 +9,13 @@ from uuid import uuid4
 import requests
 
 from bbm.constants import KST, Interval
-from bbm.exceptions import BBMNotInitialized, NoJoinChannelException, ReporterNotInitialized
-from bbm.utils import create_report, get_caller_file_name, get_hostname, get_ip
+from bbm.exceptions import BBMNotInitialized
+from bbm.utils import get_caller_file_name, get_hostname, get_ip
 
 # package info
-__version__ = "0.0.10"
+__version__ = "0.0.11"
+
+logger = logging.getLogger()
 
 
 class BBM:
@@ -53,7 +56,7 @@ class BBM:
         try:
             return requests.post(f"{self.es_url}/{index}/_doc", json=write_dict)
         except Exception as e:
-            raise e
+            logger.error(e)
 
 
 bbm: BBM = None
