@@ -13,7 +13,7 @@ from bbm.exceptions import BBMNotInitialized
 from bbm.utils import get_caller_file_name, get_hostname, get_ip
 
 # package info
-__version__ = "0.0.11"
+__version__ = "0.0.12"
 
 logger = logging.getLogger()
 
