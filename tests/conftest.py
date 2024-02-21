@@ -15,7 +15,7 @@ TEST_SLACK_CHANNEL_ID = "TEST_SLACK_CHANNEL_ID"
 def set_up(requests_mock):
     now_kst = datetime.now(tz=KST)
     get_date_to_index = now_kst.strftime("%Y.%m.%d")
-    requests_mock.get("http://ipgrab.io", text="0.0.0.0")
+    requests_mock.get("https://ipinfo.io/ip", text="0.0.0.0")
     # mock ES Requests
     requests_mock.post(
         f"{TEST_ES_URL}/{TEST_ES_INDEX}-{get_date_to_index}/_doc",

@@ -19,15 +19,22 @@ def get_caller_file_name():
 
 
 def get_ip():
-    try:
-        ip = requests.get("http://ipgrab.io").text
-        if len(ip) > 50:
-            ip = requests.get("http://ipaddress.sh").text
-        if len(ip) > 50:
-            raise Exception("ip length is too long")
-    except Exception as e:
-        ip = ""
-    return ip
+    urls = [
+        "https://ipinfo.io/ip",
+        "https://ifconfig.me/ip",
+        "http://ipaddress.sh",
+        "http://ipgrab.io",
+    ]
+
+    for url in urls:
+        try:
+            response = requests.get(url, timeout=1)
+            if response.status_code == 200:
+                return response.text.strip()
+        except requests.RequestException:
+            continue
+
+    return ""
 
 
 def get_hostname():
